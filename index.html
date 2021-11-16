@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script
+  src="https://code.jquery.com/jquery-3.6.0.min.js"
+  integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+  crossorigin="anonymous"></script>
+  </head>
+<body>
+  <div style="width:100%;height: 200px;" >
+    <svg width="100%" height="100%" id="test">
+     
+      <rect x="40%" width="40%" height="80%" 
+          style="fill:rgb(126, 190, 129)" />
+          
+      <line 
+      x1="0"
+      y1="35%"
+      x2="0%"
+      y2="45%"
+      style="stroke:rgb(255, 0, 0);stroke-width:5"
+      />
+      <line 
+      x1="100%"
+      y1="35%"
+      x2="100%"
+      y2="45%"
+      style="stroke:rgb(255, 0, 0);stroke-width:5"
+      />
+      <line 
+          x1="0" y1="40%" 
+          x2="100%" y2="40%" 
+          style="stroke:rgb(255,0,0);stroke-width:2" />
+          <line
+            id="cut"
+            y1="0%"
+            y2="80%"
+            style="stroke:rgb(255,0,0);stroke-width:2" />
+            
+          
+        </svg>
+</div>
+
+  <script>
+          // Find your root SVG element
+      var svg = document.querySelector('svg');
+
+      // Create an SVGPoint for future math
+      var pt = svg.createSVGPoint();
+
+      // Get point in global SVG space
+      function cursorPoint(evt){
+        pt.x = evt.clientX; pt.y = evt.clientY;
+        return pt.matrixTransform(svg.getScreenCTM().inverse());
+      }
+      function median(values){
+        if(values.length ===0) throw new Error("No inputs");
+
+        values.sort(function(a,b){
+          return a-b;
+        });
+
+        var half = Math.floor(values.length / 2);
+        
+        if (values.length % 2)
+          return values[half];
+        
+        return (values[half - 1] + values[half]) / 2.0;
+      }
+      function Quartile(data, q) {
+  data=Array_Sort_Numbers(data);
+  var pos = ((data.length) - 1) * q;
+  var base = Math.floor(pos);
+  var rest = pos - base;
+  if( (data[base+1]!==undefined) ) {
+    return data[base] + rest * (data[base+1] - data[base]);
+  } else {
+    return data[base];
+  }
+}
+
+function Array_Sort_Numbers(inputarray){
+  return inputarray.sort(function(a, b) {
+    return a - b;
+  });
+}
+function sum(input){
+             
+             if (toString.call(input) !== "[object Array]")
+                return false;
+                  
+                        var total =  0;
+                        for(var i=0;i<input.length;i++)
+                          {                  
+                            if(isNaN(input[i])){
+                            continue;
+                             }
+                              total += Number(input[i]);
+                           }
+                         return total;
+                        }
+
+
+
+      svg.addEventListener('mousemove',function(evt){
+        var loc = cursorPoint(evt);
+        let currentline = document.querySelector('#cut');
+        currentline.setAttribute("x1",loc.x);
+        currentline.setAttribute("x2",loc.x);
+      },false);
+      svg.addEventListener('mouseleave',function(evt){
+        let currentline = document.querySelector('#cut');
+        currentline.setAttribute("display","none");
+      },false);
+
+      svg.addEventListener('mouseenter',function(evt){
+        let currentline = document.querySelector('#cut');
+        currentline.setAttribute("display","block");
+      },false);
+      let array = [0,25,50,75,100];
+      var borders = [];
+      $(document).ready(function(){
+
+        borders.push(Math.min.apply(null,array));
+        borders.push(Quartile(array,0.25));
+        borders.push(Quartile(array,0.5));
+        borders.push(Quartile(array,0.75));
+        borders.push(Math.max.apply(null,array));
+
+        let newElement = document.createElementNS('http://www.w3.org/2000/svg','rect');
+        newElement.setAttribute('fill','orange');
+        newElement.setAttribute('width','30%');
+        newElement.setAttribute('height','80%');
+
+        newElement.setAttribute('x','20%');
+        // let newrec = `<rect x="0%" width="40%" height="80%" 
+        //   style="fill:rgb(73, 27, 148)" />`;
+        
+        document.getElementById('test').prepend(newElement);
+      });
+     
+      
+  </script>
+</body>
+</html>
